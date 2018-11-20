@@ -1,10 +1,10 @@
 Heroku: https://polar-hollows-99028.herokuapp.com/country
 
-This program has six functions.
+This program has five functions.
 1. It can find out if two countries are in the same region.
 2. It can find out if two countries are connected directly by border (does not apply to sea border meaning that countries like Japan does not have any bordering countries)
 3. It can find out which of the two countries has the highest population
-4. If population is requested, it will add all new countries to a mongodb.
+	-If population is requested, it will add all new countries to a mongodb.
 5. Entries to the database can be removed by the /population/remove/<countryname>
 6. There is a ranking system that shows the country with the highest population in the database, accessed by /population/ranks/
 
