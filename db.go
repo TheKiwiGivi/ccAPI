@@ -103,6 +103,7 @@ func (db CountryMongoDB) Add(p PopDb) {
 	}
 }
 
+//GetAll gets all elements in the db
 func (db *CountryMongoDB) GetAll() []PopDb {
 	session, err := mgo.Dial(db.URL)
 	if err != nil {
@@ -115,6 +116,7 @@ func (db *CountryMongoDB) GetAll() []PopDb {
 
 }
 
+//Length returns length of the database elements
 func (db CountryMongoDB) Length() int {
 	session, err := mgo.Dial(db.URL)
 	if err != nil {
@@ -130,6 +132,8 @@ func (db CountryMongoDB) Length() int {
 	return count
 
 }
+
+//Remove removes an element in the database
 func (db CountryMongoDB) Remove(n string) {
 	session, err := mgo.Dial(db.URL)
 	if err != nil {

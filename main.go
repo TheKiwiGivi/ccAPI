@@ -153,28 +153,28 @@ func handlerPopulation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Please choose a valid country.", http.StatusBadRequest)
 		return
 	}
-	//makes sure the countries are not the same
+	//makes sure the countries are not the same, this time not only input but the actual country name.
 	if pop1[0].Name == pop2[0].Name {
 		http.Error(w, "Please choose two different countries.", http.StatusBadRequest)
 		return
 	}
 
-	oId := bson.NewObjectId()
-	//a temp to hold the info before put in globalDB
-	tempPop := PopDb{oId, pop1[0].Pop, pop1[0].Name}
+	oID := bson.NewObjectId()
+	//a temp to hold the info before put in db
+	tempPop := PopDb{oID, pop1[0].Pop, pop1[0].Name}
 
 	//if the id is not taken
 	_, notOk := db.Get(tempPop.Name)
+	//adds to the database
 	if !notOk {
 		db.Add(tempPop)
 		fmt.Fprintln(w, "Added "+pop1[0].Name+" to the db.")
-		//http.Error(w, "This country has already been added", http.StatusBadRequest)
-		//return
+
 	}
 
-	oId2 := bson.NewObjectId()
-	//a temp to hold the info before put in globalDB
-	tempPop2 := PopDb{oId2, pop2[0].Pop, pop2[0].Name}
+	oID2 := bson.NewObjectId()
+	//a temp to hold the info before put in db
+	tempPop2 := PopDb{oID2, pop2[0].Pop, pop2[0].Name}
 
 	//if the id is not taken
 	_, notOk2 := db.Get(tempPop2.Name)
@@ -182,7 +182,7 @@ func handlerPopulation(w http.ResponseWriter, r *http.Request) {
 		db.Add(tempPop2)
 		fmt.Fprintln(w, "Added "+pop2[0].Name+" to the db.")
 	}
-
+	//checks which country has the highest population and prints out
 	if pop1[0].Pop > pop2[0].Pop {
 		fmt.Fprint(w, pop1[0].Name+" has "+strconv.Itoa(pop1[0].Pop-pop2[0].Pop)+" more inhabitants than "+pop2[0].Name)
 	} else {
@@ -207,7 +207,7 @@ func handlerBorder(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Please choose two different countries.", http.StatusBadRequest)
 		return
 	}
-
+	//used for getting the two countries
 	apiRoot := firstBordRoot + b1 + secondBordRoot
 	apiRoot2 := firstBordRoot + b2 + secondBordRoot
 	response, err := http.Get(apiRoot)
@@ -245,13 +245,14 @@ func handlerBorder(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Please choose a valid country.", http.StatusBadRequest)
 		return
 	}
-
+	//goes through all the borders, and if it finds a match, prints out the relevant info.
 	for _, s := range bord[0].Borders {
 		if s == bord2[0].Code {
 			fmt.Fprint(w, "The countries "+bord[0].Name+" and "+bord2[0].Name+" share borders.")
 			return
 		}
 	}
+	//if no match
 	fmt.Fprint(w, bord[0].Name+" and "+bord2[0].Name+" do not share borders.")
 
 }
@@ -261,13 +262,15 @@ func handlerRegion(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 
 	if len(parts) != 6 {
-		http.Error(w, "Please Make sure you have written two countries and included '/' in the end.", http.StatusBadRequest)
+		http.Error(w, "Please make sure you have written two countries and included '/' in the end.", http.StatusBadRequest)
 		return
 	}
+	//if last is not blanc, then it is rubbish
 	if parts[5] != "" {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
+	//grabbing countries
 	c1 := parts[3]
 	c2 := parts[4]
 	if c1 == c2 {
@@ -313,7 +316,7 @@ func handlerRegion(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Please choose a valid country.", http.StatusBadRequest)
 		return
 	}
-
+	//checks if the regions are the same
 	if re[0].Reg == r2[0].Reg {
 		fmt.Fprintln(w, "The countries "+re[0].Name+" and "+r2[0].Name+" are both in "+re[0].Reg)
 	} else {
@@ -323,7 +326,6 @@ func handlerRegion(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	//data, _ := ioutil.ReadAll(response.Body)
 	port := os.Getenv("PORT")
 	if port == "" {
 		fmt.Println("Port was not specified.")
@@ -339,7 +341,7 @@ func main() {
 	http.HandleFunc("/country/region/", handlerRegion)
 	http.HandleFunc("/country/border/", handlerBorder)
 	http.HandleFunc("/country/population/", handlerPopulation)
-	//http.HandleFunc("/country/currency/", handlerCurrency)
+
 	http.ListenAndServe(address, nil)
 
 }
