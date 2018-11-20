@@ -16,20 +16,12 @@ import (
 var db *CountryMongoDB
 
 //variables for various fields
-var firstRegRoot = "https://restcountries.eu/rest/v2/name/"
-var secondRegRoot = "?fields=region;name"
-
-var firstBordRoot = "https://restcountries.eu/rest/v2/name/"
-var secondBordRoot = "?fields=borders;name;alpha3Code"
-
-var firstcRoot = "https://restcountries.eu/rest/v2/name/"
-var secondcRoot = "?fields=currencies"
-
 var firstRoot = "https://restcountries.eu/rest/v2/name/"
-var popField = "?fields=population;name"
 
-var firstcConvert = "https://free.currencyconverterapi.com/api/v6/convert?q="
-var secondcConvert = "&compact=ultra"
+var secondRegRoot = "?fields=region;name"
+var secondBordRoot = "?fields=borders;name;alpha3Code"
+var secondcRoot = "?fields=currencies"
+var popField = "?fields=population;name"
 
 //Region for a country's region
 type Region struct {
@@ -208,8 +200,8 @@ func handlerBorder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//used for getting the two countries
-	apiRoot := firstBordRoot + b1 + secondBordRoot
-	apiRoot2 := firstBordRoot + b2 + secondBordRoot
+	apiRoot := firstRoot + b1 + secondBordRoot
+	apiRoot2 := firstRoot + b2 + secondBordRoot
 	response, err := http.Get(apiRoot)
 	if err != nil {
 		http.Error(w, "Please choose a valid country.", http.StatusBadRequest)
@@ -278,8 +270,8 @@ func handlerRegion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apiRoot := firstRegRoot + c1 + secondRegRoot
-	apiRoot2 := firstRegRoot + c2 + secondRegRoot
+	apiRoot := firstRoot + c1 + secondRegRoot
+	apiRoot2 := firstRoot + c2 + secondRegRoot
 	response, err := http.Get(apiRoot)
 	if err != nil {
 		http.Error(w, "Please choose a valid country.", http.StatusBadRequest)
