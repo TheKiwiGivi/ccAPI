@@ -1,1 +1,1 @@
-web: ccAPI
+web: github.com/TheKiwiGivi/ccAPI
