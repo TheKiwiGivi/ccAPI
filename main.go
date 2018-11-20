@@ -12,7 +12,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+//database variable
 var db *CountryMongoDB
+
+//variables for various fields
 var firstRegRoot = "https://restcountries.eu/rest/v2/name/"
 var secondRegRoot = "?fields=region;name"
 
@@ -28,108 +31,85 @@ var popField = "?fields=population;name"
 var firstcConvert = "https://free.currencyconverterapi.com/api/v6/convert?q="
 var secondcConvert = "&compact=ultra"
 
+//Region for a country's region
 type Region struct {
 	Reg  string `json:"region"`
 	Name string `json:"name"`
 }
 
+//Border for a country's borders
 type Border struct {
 	Borders []string `json:"borders"`
 	Name    string   `json:"name"`
 	Code    string   `json:"alpha3Code"`
 }
 
+//Population for a country's population
 type Population struct {
 	Pop  int    `json:"population"`
 	Name string `json:"name"`
 }
 
+//PopDb used for population database
 type PopDb struct {
-	Id   bson.ObjectId `bson:"_id,omitempty"`
+	ID   bson.ObjectId `bson:"_id,omitempty"`
 	Pop  int           `json:"population"`
 	Name string        `json:"name"`
 }
 
-/*func handlerCurrency(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) != 6 {
-		http.Error(w, "Please Make sure you have written two countries and included '/' in the end.", http.StatusBadRequest)
-		return
-	}
-	c1 := parts[3]
-	c2 := parts[4]
-	if c1 == c2 {
-		http.Error(w, "Please choose two different countries.", http.StatusBadRequest)
-		return
-	}
-
-	apiRoot := firstcConvert + c1 + "_" + c2 + secondcConvert
-
-	response, err := http.Get(apiRoot)
-	if err != nil {
-		http.Error(w, "Please choose a valid country.", http.StatusBadRequest)
-		return
-	}
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		http.Error(w, "Please choose a valid country.", http.StatusBadRequest)
-		return
-	}
-	//fmt.Print(string(body))
-	var bord []float64
-	fmt.Println(apiRoot)
-	err = json.Unmarshal(body, &bord)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	fmt.Fprint(w, bord)
-
-}*/
-
 func handlerPopulation(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
-
+	//if ranks is requested
 	if len(parts) == 5 && parts[3] == "ranks" {
+		//checks if empty
 		if db.Length() == 0 {
 			fmt.Fprint(w, "There are currently no countries added to the database.")
 			return
 		}
+
 		temp := db.GetAll()
 		var highestName string
 		highestPop := 0
+		//searching through all entires in the database and finds the one with highest population
 		for _, s := range temp {
 			if s.Pop > highestPop {
 				highestPop = s.Pop
 				highestName = s.Name
 			}
 		}
+		//prints response
 		fmt.Fprint(w, "The country in the database with the highest population is "+highestName+" with a population of "+strconv.Itoa(highestPop))
 		return
 
 	}
+	//if remove is requested
 	if len(parts) == 5 && parts[3] == "remove" {
-
+		//checks if it actually exists in the db
 		cName := parts[4]
 		_, notOk := db.Get(cName)
 		if !notOk {
 			http.Error(w, "Country entered does not exist in the database.", http.StatusNotFound)
 			return
 		}
+		//if so, removes it
 		db.Remove(cName)
 		fmt.Fprint(w, "Removed "+cName+" from the database.")
 		return
 	}
+	//makes sure that the request has the right amount of parts. the after this point should be root/<SOMETHING>/country1/country2/
 	if len(parts) != 6 {
 		http.Error(w, "Please make sure you have written two countries and included '/' in the end.", http.StatusBadRequest)
 		return
 	}
+	//if rubbish
 	if parts[5] != "" {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
+	//grabs the country names
 	p1 := parts[3]
 	p2 := parts[4]
+	//makes sure the countries are not the same
 	if p1 == p2 {
 		http.Error(w, "Please choose two different countries.", http.StatusBadRequest)
 		return
@@ -171,6 +151,11 @@ func handlerPopulation(w http.ResponseWriter, r *http.Request) {
 	err2 = json.Unmarshal(body2, &pop2)
 	if err2 != nil {
 		http.Error(w, "Please choose a valid country.", http.StatusBadRequest)
+		return
+	}
+	//makes sure the countries are not the same
+	if pop1[0].Name == pop2[0].Name {
+		http.Error(w, "Please choose two different countries.", http.StatusBadRequest)
 		return
 	}
 

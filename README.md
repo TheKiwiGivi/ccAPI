@@ -18,6 +18,7 @@ Further ideas would be to get the currency name from the API and use another API
 
 The API does not require to type in the whole name of the country, of you omit some parts it will choose the country closest to what was typed. 
 
+Only GET method is required.
 
 Please always end a URL with a '/' to make sure everything will work properly. 
  * The only exception to this is when removing a country, here, the URL should NOT end in "/"*
